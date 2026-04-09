@@ -1,0 +1,13 @@
+{
+  "name": "Global War Room",
+  "short_name": "War Room",
+  "start_url": "/Global-War-Room/",
+  "scope": "/Global-War-Room/",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#FFD700",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}
