@@ -139,74 +139,45 @@
     }
 
     /* ── LOADING SCREEN ── */
-    @keyframes crosshair-pulse {
-      0%,100%{ opacity:0.4; transform:scale(0.95); filter:drop-shadow(0 0 8px #FFD70066); }
-      50%    { opacity:1;   transform:scale(1.05); filter:drop-shadow(0 0 24px #FFD700cc); }
-    }
-    @keyframes load-bar-fill {
-      0%  { width:0%; }
-      100%{ width:100%; }
-    }
     @keyframes load-fadeout {
       0%  { opacity:1; }
-      100%{ opacity:0; pointer-events:none; }
+      100%{ opacity:0; }
     }
-    @keyframes load-flicker {
-      0%,100%{ opacity:1; }
-      45%    { opacity:0.7; }
-      50%    { opacity:0.3; }
-      55%    { opacity:0.9; }
+    @keyframes cursor-blink-load {
+      0%,100%{ opacity:1; } 50%{ opacity:0; }
     }
 
     #loading-screen {
       position:fixed; inset:0; z-index:999999;
       background:#000;
       display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      padding:32px;
+      justify-content:center;
+      padding:40px 32px;
     }
     #loading-screen.fadeout {
-      animation:load-fadeout 0.8s ease forwards;
+      animation:load-fadeout 0.6s ease forwards;
+      pointer-events:none;
     }
     #loading-screen.hidden { display:none; }
-
-    #load-crosshair {
-      width:clamp(120px,35vw,180px);
-      height:clamp(120px,35vw,180px);
-      animation:crosshair-pulse 1.8s ease-in-out infinite;
-      margin-bottom:48px;
-    }
-    #load-status {
+    #terminal-lines {
       font-family:'Share Tech Mono',monospace;
-      font-size:clamp(10px,3vw,13px);
+      font-size:clamp(12px,3.5vw,15px);
       color:#FFD700;
-      letter-spacing:3px;
-      margin-bottom:24px;
-      min-height:20px;
-      text-align:center;
-      animation:load-flicker 3s ease infinite;
+      letter-spacing:2px;
+      line-height:2.2;
     }
-    #load-bar-wrap {
-      width:100%; max-width:320px;
-      height:2px;
-      background:#1a1a1a;
-      border-radius:2px;
-      overflow:hidden;
-      margin-bottom:16px;
-    }
-    #load-bar {
-      height:100%; width:0%;
-      background:linear-gradient(90deg, #FFD70066, #FFD700, #FFD70066);
-      box-shadow:0 0 8px #FFD700;
-      border-radius:2px;
-    }
-    #load-percent {
-      font-family:'Share Tech Mono',monospace;
-      font-size:11px; color:#FFD70066;
-      letter-spacing:3px;
+    .t-line { display:block; }
+    .t-line .prompt { color:#FFD70066; }
+    .t-cursor {
+      display:inline-block;
+      width:9px; height:1.1em;
+      background:#FFD700;
+      vertical-align:text-bottom;
+      margin-left:2px;
+      animation:cursor-blink-load 0.7s ease infinite;
     }
     #load-version {
-      position:absolute; bottom:24px;
+      position:absolute; bottom:24px; left:32px;
       font-family:'Share Tech Mono',monospace;
       font-size:9px; color:#FFD70022;
       letter-spacing:4px;
@@ -812,28 +783,7 @@
 
   <!-- ── LOADING SCREEN ── -->
   <div id="loading-screen">
-    <svg id="load-crosshair" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-      <rect width="512" height="512" fill="#000"/>
-      <circle cx="256" cy="256" r="180" fill="none" stroke="#FFD700" stroke-width="8"/>
-      <circle cx="256" cy="256" r="60" fill="none" stroke="#FFD700" stroke-width="5"/>
-      <circle cx="256" cy="256" r="10" fill="#FFD700"/>
-      <line x1="256" y1="76" x2="256" y2="190" stroke="#FFD700" stroke-width="6"/>
-      <line x1="256" y1="322" x2="256" y2="436" stroke="#FFD700" stroke-width="6"/>
-      <line x1="76" y1="256" x2="190" y2="256" stroke="#FFD700" stroke-width="6"/>
-      <line x1="322" y1="256" x2="436" y2="256" stroke="#FFD700" stroke-width="6"/>
-      <line x1="256" y1="76" x2="256" y2="96" stroke="#FFD700" stroke-width="8"/>
-      <line x1="256" y1="416" x2="256" y2="436" stroke="#FFD700" stroke-width="8"/>
-      <line x1="76" y1="256" x2="96" y2="256" stroke="#FFD700" stroke-width="8"/>
-      <line x1="416" y1="256" x2="436" y2="256" stroke="#FFD700" stroke-width="8"/>
-      <path d="M 148 148 A 153 153 0 0 1 184 120" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.5"/>
-      <path d="M 328 120 A 153 153 0 0 1 364 148" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.5"/>
-      <path d="M 148 364 A 153 153 0 0 0 184 392" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.5"/>
-      <path d="M 328 392 A 153 153 0 0 0 364 364" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.5"/>
-      <text x="256" y="490" font-family="'Arial Narrow',Arial,sans-serif" font-size="32" font-weight="bold" fill="#FFD700" text-anchor="middle" letter-spacing="12">GWR</text>
-    </svg>
-    <div id="load-status">INITIALIZING WAR ROOM...</div>
-    <div id="load-bar-wrap"><div id="load-bar"></div></div>
-    <div id="load-percent">0%</div>
+    <div id="terminal-lines"></div>
     <div id="load-version">GLOBAL WAR ROOM · v2.0 · ARCHITECT_01</div>
   </div>
 
@@ -1139,52 +1089,61 @@
   </div>
 
   <script>
-    // ── LOADING SCREEN ────────────────────────────────────────────
+    // ── LOADING SCREEN — TERMINAL BOOT ───────────────────────────
     (function() {
-      const screen   = document.getElementById('loading-screen');
-      const bar      = document.getElementById('load-bar');
-      const pct      = document.getElementById('load-percent');
-      const status   = document.getElementById('load-status');
+      const container = document.getElementById('terminal-lines');
+      const screen    = document.getElementById('loading-screen');
 
-      const steps = [
-        { at: 0,   text: 'INITIALIZING WAR ROOM...' },
-        { at: 25,  text: 'LOADING PROTOCOLS...' },
-        { at: 55,  text: 'SYNCING GLOBAL NODE...' },
-        { at: 80,  text: 'CALIBRATING SESSIONS...' },
-        { at: 95,  text: 'ACCESS GRANTED.' },
+      const LINES = [
+        { text: '> CONNECTING TO GLOBAL NODE...', delay: 0,    speed: 35 },
+        { text: '> LOADING TRADE PROTOCOLS...',   delay: 900,  speed: 35 },
+        { text: '> VERIFYING DISCIPLINE STATUS...', delay: 1800, speed: 35 },
+        { text: '> SYNCING SESSION SENTINEL...',  delay: 2700, speed: 35 },
+        { text: '> ACCESS GRANTED.',              delay: 3500, speed: 50, gold: true },
       ];
 
-      const DURATION = 3000; // 3 seconds
-      let start = null;
+      let allDone = 0;
 
-      function animate(ts) {
-        if (!start) start = ts;
-        const elapsed  = ts - start;
-        const progress = Math.min((elapsed / DURATION) * 100, 100);
+      LINES.forEach((line, idx) => {
+        setTimeout(() => {
+          // create line element
+          const el = document.createElement('span');
+          el.className = 't-line';
+          container.appendChild(el);
 
-        bar.style.width   = progress + '%';
-        pct.textContent   = Math.floor(progress) + '%';
+          // create cursor
+          const cursor = document.createElement('span');
+          cursor.className = 't-cursor';
+          el.appendChild(cursor);
 
-        // update status text
-        for (let i = steps.length - 1; i >= 0; i--) {
-          if (progress >= steps[i].at) {
-            status.textContent = steps[i].text;
-            break;
-          }
-        }
+          if (line.gold) el.style.color = '#FFD700';
+          else el.style.color = '#FFD70099';
 
-        if (progress < 100) {
-          requestAnimationFrame(animate);
-        } else {
-          // done — fade out
-          setTimeout(() => {
-            screen.classList.add('fadeout');
-            setTimeout(() => screen.classList.add('hidden'), 800);
-          }, 300);
-        }
-      }
+          let i = 0;
+          const id = setInterval(() => {
+            i++;
+            el.textContent = line.text.slice(0, i);
+            if (line.gold) el.style.color = '#FFD700';
+            else el.style.color = '#FFD70099';
+            el.appendChild(cursor);
 
-      requestAnimationFrame(animate);
+            if (i >= line.text.length) {
+              clearInterval(id);
+              el.removeChild(cursor);
+
+              allDone++;
+              if (allDone === LINES.length) {
+                // all lines done — wait then fade out
+                setTimeout(() => {
+                  screen.classList.add('fadeout');
+                  setTimeout(() => screen.classList.add('hidden'), 650);
+                }, 600);
+              }
+            }
+          }, line.speed);
+
+        }, line.delay);
+      });
     })();
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
